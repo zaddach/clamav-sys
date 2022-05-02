@@ -18,44 +18,94 @@
 use std::path::PathBuf;
 use std::env;
 
+// Generate bindings for these functions:
+const BINDGEN_FUNCTIONS: &[&str] = &[
+    "cli_ctx",
+    "cli_warnmsg",
+    "cli_dbgmsg_no_inline",
+    "cli_infomsg_simple",
+    "cli_errmsg",
+    "cli_append_virus",
+    "lsig_increment_subsig_match",
+    "cli_versig2",
+    "cli_getdsig",
+    "cli_get_debug_flag",
+
+    "cl_init",
+    "cl_engine_new",
+    "cl_engine_get_num",
+    "cl_engine_set_num",
+    "cl_engine_get_str",
+    "cl_engine_set_str",
+    "cl_engine_settings_copy",
+    "cl_engine_settings_apply",
+    "cl_engine_settings_free",
+    "cl_engine_compile",
+    "cl_engine_addref",
+    "cl_engine_free",
+    "cl_engine_set_clcb_pre_cache",
+    "cl_engine_set_clcb_pre_scan",
+    "cl_engine_set_clcb_post_scan",
+    "cl_engine_set_clcb_virus_found",
+    "cl_engine_set_clcb_sigload",
+    "cl_engine_set_clcb_sigload_progress",
+    "cl_engine_set_clcb_engine_compile_progress",
+    "cl_engine_set_clcb_engine_free_progress",
+    "cl_set_clcb_msg",
+    "cl_engine_set_clcb_hash",
+    "cl_engine_set_clcb_meta",
+    "cl_engine_set_clcb_file_props",
+    "cl_engine_set_stats_set_cbdata",
+    "cl_engine_set_clcb_stats_add_sample",
+    "cl_engine_set_clcb_stats_remove_sample",
+    "cl_engine_set_clcb_stats_decrement_count",
+    "cl_engine_set_clcb_stats_submit",
+    "cl_engine_set_clcb_stats_flush",
+    "cl_engine_set_clcb_stats_get_num",
+    "cl_engine_set_clcb_stats_get_size",
+    "cl_engine_set_clcb_stats_get_hostid",
+    "cl_engine_stats_enable",
+    "cl_scandesc",
+    "cl_scandesc_callback",
+    "cl_scanfile",
+    "cl_scanfile_callback",
+    "cl_load",
+    "cl_retdbdir",
+    "cl_retflevel",
+    "cl_retver",
+    "cl_fmap_open_memory",
+    "cl_fmap_close",
+    "cl_scanmap_callback",
+    "cl_strerror",
+];
+
+// Generate bindings for these types (structs, enums):
+const BINDGEN_TYPES: &[&str] = &["cli_matcher", "cli_ac_data", "cli_ac_result"];
+
+const BINDGEN_CONSTANTS: &[&str] = &[
+    "CL_SCAN_.*",
+    "CL_INIT_DEFAULT",
+	"CL_DB_.*",
+    "ENGINE_OPTIONS_.*",
+];
 
 fn generate_bindings(customize_bindings: &dyn Fn(bindgen::Builder) -> bindgen::Builder) {
-    let mut bindings = bindgen::Builder::default()
-        // The input header we would like to generate
-        // bindings for.
-        //Whitelist wanted functions
-        .whitelist_function("cl_init")
-        .whitelist_function("cl_initialize_crypto")
-        .whitelist_function("cl_cleanup_crypto")
-        .whitelist_function("cl_strerror")
-        .whitelist_function("cl_engine_new")
-        .whitelist_function("cl_engine_free")
-        .whitelist_function("cl_engine_compile")
-        .whitelist_function("cl_engine_get_num")
-        .whitelist_function("cl_engine_set_num")
-        .whitelist_function("cl_engine_get_str")
-        .whitelist_function("cl_engine_set_str")
-        .whitelist_function("cl_scandesc")
-        .whitelist_function("cl_scanmap_callback")
-        .whitelist_function("cl_fmap_open_handle")
-        .whitelist_function("cl_fmap_open_memory")
-        .whitelist_function("cl_fmap_close")
-        .whitelist_function("cl_retflevel")
-        .whitelist_function("cl_retver")
-        .whitelist_function("cl_load")
-        .whitelist_function("cl_scanfile")
-        .whitelist_function("cl_retdbdir")
-        //Whitelist wanted types
-        .rustified_enum("cl_error_t")
-        .rustified_enum("cl_engine_field")
-        .whitelist_type("time_t")
-        //Whitelist wanted constants
-        .whitelist_var("CL_SCAN_.*")
-        .whitelist_var("CL_INIT_DEFAULT")
-        .whitelist_var("CL_DB_.*")
+    let mut bindings = bindgen::Builder::default();
+	for function in BINDGEN_FUNCTIONS {
+		bindings = bindings.whitelist_function(function);
+	}
+
+	for typename in BINDGEN_TYPES {
+		bindings = bindings.whitelist_type(typename);
+	
+	}
+
+	for constant in BINDGEN_CONSTANTS {
+		bindings = bindings.whitelist_var(constant);
+	}
 
 
-        .header("wrapper.h")
+    bindings = bindings.header("wrapper.h")
 
         // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
