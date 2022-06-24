@@ -32,6 +32,7 @@ const BINDGEN_FUNCTIONS: &[&str] = &[
     "cli_get_debug_flag",
 
     "cl_init",
+    "cl_debug",
     "cl_engine_new",
     "cl_engine_get_num",
     "cl_engine_set_num",
