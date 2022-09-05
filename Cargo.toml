@@ -10,7 +10,7 @@ homepage = "https://github.com/zaddach/clamav-sys/"
 repository = "https://github.com/zaddach/clamav-sys/"
 
 [build-dependencies]
-bindgen = "0.56.0"
+bindgen = "0.58"
 
 [target.'cfg(unix)'.build-dependencies]
 pkg-config = "0.3"

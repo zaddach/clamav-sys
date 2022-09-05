@@ -31,6 +31,8 @@ const BINDGEN_FUNCTIONS: &[&str] = &[
     "cli_getdsig",
     "cli_get_debug_flag",
 
+    "cl_cleanup_crypto",
+    "cl_initialize_crypto",
     "cl_init",
     "cl_debug",
     "cl_engine_new",
@@ -75,44 +77,53 @@ const BINDGEN_FUNCTIONS: &[&str] = &[
     "cl_retflevel",
     "cl_retver",
     "cl_fmap_open_memory",
+    "cl_fmap_open_handle",
     "cl_fmap_close",
     "cl_scanmap_callback",
     "cl_strerror",
 ];
 
 // Generate bindings for these types (structs, enums):
-const BINDGEN_TYPES: &[&str] = &["cli_matcher", "cli_ac_data", "cli_ac_result"];
+const BINDGEN_TYPES: &[&str] = &[
+    "cli_matcher",
+    "cli_ac_data",
+    "cli_ac_result",
+    "cl_scan_options",
+    "cl_engine_field",
+    "cl_error_t",
+    "time_t",
+];
 
 const BINDGEN_CONSTANTS: &[&str] = &[
     "CL_SCAN_.*",
     "CL_INIT_DEFAULT",
-	"CL_DB_.*",
+    "CL_DB_.*",
     "ENGINE_OPTIONS_.*",
 ];
 
 fn generate_bindings(customize_bindings: &dyn Fn(bindgen::Builder) -> bindgen::Builder) {
-    let mut bindings = bindgen::Builder::default();
-	for function in BINDGEN_FUNCTIONS {
-		bindings = bindings.whitelist_function(function);
-	}
+    let mut bindings = bindgen::Builder::default()
+        .header("wrapper.h");
+    for function in BINDGEN_FUNCTIONS {
+        bindings = bindings.allowlist_function(function);
+    }
 
-	for typename in BINDGEN_TYPES {
-		bindings = bindings.whitelist_type(typename);
-	
-	}
+    for typename in BINDGEN_TYPES {
+        bindings = bindings.allowlist_type(typename);
+    }
 
-	for constant in BINDGEN_CONSTANTS {
-		bindings = bindings.whitelist_var(constant);
-	}
+    for constant in BINDGEN_CONSTANTS {
+        bindings = bindings.allowlist_var(constant);
+    }
 
-
-    bindings = bindings.header("wrapper.h")
-
+    bindings = bindings
         // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
         .parse_callbacks(Box::new(bindgen::CargoCallbacks));
 
-    bindings = customize_bindings(bindings);
+    bindings = customize_bindings(bindings)
+        .rustified_enum("cl_error_t")
+        .rustified_enum("cl_engine_field");
 
     // Write the bindings to the $OUT_DIR/bindings.rs file.
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
