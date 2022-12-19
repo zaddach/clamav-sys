@@ -11,6 +11,7 @@ clamav-rs.
 You should have the `clamav-dev` package of your distribution installed (ClamAV
 with headers). The headers and library should be picked up automatically via
 pkg-config.
+On Ubuntu this package is called `libclamav-dev`.
 
 ### Windows
 #### vcpkg
